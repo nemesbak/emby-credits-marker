@@ -1,0 +1,8 @@
+# build output
+out/
+bin/
+obj/
+*.user
+
+# Emby reference assemblies (not redistributable — fetched at build time)
+lib/
