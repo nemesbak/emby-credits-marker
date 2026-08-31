@@ -1,0 +1,10 @@
+{
+  "category": "General",
+  "guid": "7c1f4d2e-8a63-4b91-b0e5-9d3a2f6c1e40",
+  "name": "Credits Marker",
+  "description": "Marca dónde empiezan los créditos finales para poder saltarlos: tarjeta «A continuación» a tiempo y salto automático opcional al siguiente episodio en cualquier cliente. // Marks where the end credits start so you can skip them: an on-time 'Up Next' card plus an optional server-side auto-skip to the next episode, on any client.",
+  "owner": "nemesbak",
+  "overview": "Saltar créditos finales en Emby / Skip end credits in Emby",
+  "targetAbi": "4.9.0.0",
+  "version": "1.8.1.0"
+}

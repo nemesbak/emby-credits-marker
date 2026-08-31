@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Emby.CreditsMarker</AssemblyName>
+    <RootNamespace>Emby.CreditsMarker</RootNamespace>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Version>1.8.1.0</Version>
+    <FileVersion>1.8.1.0</FileVersion>
+    <AssemblyVersion>1.8.1.0</AssemblyVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>CS1591;NU1701;CS0436</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Plugin.cs" />
+    <Compile Include="PluginOptions.cs" />
+    <Compile Include="MarkerWriter.cs" />
+    <Compile Include="CreditsDetector.cs" />
+    <Compile Include="OutroFingerprint.cs" />
+    <Compile Include="DetectCreditsTask.cs" />
+    <Compile Include="CreditsSkipMonitor.cs" />
+    <Compile Include="NewItemMonitor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="thumb.png">
+      <LogicalName>Emby.CreditsMarker.thumb.png</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <_EmbyLib Include="lib\*.dll" />
+    <Reference Include="@(_EmbyLib->'%(Filename)')">
+      <HintPath>%(_EmbyLib.Identity)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

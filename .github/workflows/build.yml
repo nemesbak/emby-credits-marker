@@ -1,0 +1,61 @@
+name: build
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: write
+
+env:
+  EMBY_VERSION: 4.9.5.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Fetch Emby reference assemblies
+        run: |
+          mkdir -p lib _emby
+          url="https://github.com/MediaBrowser/Emby.Releases/releases/download/${EMBY_VERSION}/emby-server-deb_${EMBY_VERSION}_amd64.deb"
+          curl -fsSL "$url" -o emby.deb
+          # .deb = ar archive containing data.tar.xz
+          ar x emby.deb
+          tar -xf data.tar.* -C _emby
+          find _emby -path '*/system/MediaBrowser.*.dll' -exec cp {} lib/ \;
+          find _emby -path '*/system/Emby.*.dll' -exec cp {} lib/ \;
+          ls -la lib/ | head
+
+      - name: Build
+        run: dotnet build Emby.CreditsMarker.csproj -c Release -o out
+
+      - name: Checksum
+        run: |
+          cd out
+          md5sum Emby.CreditsMarker.dll | tee ../CHECKSUM.txt
+          zip -j ../Emby.CreditsMarker_${{ github.ref_name }}.zip Emby.CreditsMarker.dll ../meta.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Emby.CreditsMarker
+          path: |
+            out/Emby.CreditsMarker.dll
+            CHECKSUM.txt
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/Emby.CreditsMarker.dll
+            Emby.CreditsMarker_${{ github.ref_name }}.zip
+            CHECKSUM.txt
+          generate_release_notes: true
