@@ -62,6 +62,17 @@ namespace Emby.CreditsMarker
             + "— Wait this many seconds into the credits before skipping. 0 = skip as soon as they start.")]
         public int AutoSkipGraceSeconds { get; set; } = 0;
 
+        [DisplayName("Aviso en pantalla al saltar · On-screen notice when skipping")]
+        [Description("Muestra un mensajito en el reproductor justo antes del salto automático, para que no parezca un fallo. "
+            + "Se ve igual que los avisos propios de Emby. "
+            + "— Show a short message in the player just before the auto-skip, so it doesn't look like a glitch. "
+            + "Rendered like Emby's own notices.")]
+        public bool AutoSkipNotice { get; set; } = true;
+
+        [DisplayName("Texto del aviso · Notice text")]
+        [Description("El texto que aparece al saltar automáticamente. — The text shown when auto-skipping.")]
+        public string AutoSkipNoticeText { get; set; } = "Saltando créditos…";
+
         [DisplayName("Cortar bucles de reproducción del cliente · Break client playback loops")]
         [Description("Si un reproductor se atasca en bucle (empieza un episodio tras otro a toda velocidad, típico de Emby para iOS "
             + "con una cola de reproducción corrupta), el servidor le manda un «Stop» para cortarlo. No afecta a la reproducción normal. Recomendado. "

@@ -447,6 +447,25 @@ namespace Emby.CreditsMarker
                     pos / TicksPerSecond, credits / TicksPerSecond,
                     100.0 * credits / runtime, session.PlaylistIndex, qlen);
 
+                // brief on-screen notice so the skip doesn't look like a glitch - sent just
+                // before the jump; Emby renders it the same way as its own system toasts.
+                if (opts.AutoSkipNotice)
+                {
+                    var text = string.IsNullOrWhiteSpace(opts.AutoSkipNoticeText)
+                        ? "Saltando créditos…" : opts.AutoSkipNoticeText.Trim();
+                    try
+                    {
+                        _sessionManager.SendMessageCommand(
+                            null, session.Id,
+                            new MessageCommand { Header = string.Empty, Text = text, TimeoutMs = 3000 },
+                            CancellationToken.None);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.ErrorException("CreditsMarker: could not send skip notice", ex);
+                    }
+                }
+
                 _sessionManager.SendPlaystateCommand(
                     null, session.Id,
                     new PlaystateRequest { Command = PlaystateCommand.NextTrack },

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.9.0.0 — 2026-09-01
+- **On-screen notice on auto-skip** (`AutoSkipNotice`, on by default). Just before
+  the server jumps to the next episode, it sends the client a short message
+  ("Saltando créditos…", editable via `AutoSkipNoticeText`) via
+  `ISessionManager.SendMessageCommand` — Emby renders it exactly like its own
+  system toasts, so the skip reads as a genuine feature instead of a glitch.
+  Emby has no "Skip credits" button of its own (only the "Up Next" card), so this
+  is the closest to the skip-intro experience the server side can provide.
+
 ## 1.8.1.0 — 2026-09-01
 - `Max hours per run` option (default 10, 0 = unlimited): the scheduled task stops
   after that long and resumes next run, on top of Emby's own runtime cap - so a
