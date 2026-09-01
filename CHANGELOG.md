@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.13.0.0 — 2026-09-02
+- **Coverage line on the settings page.** After the nightly task runs, the plugin
+  description shows a one-line summary: how many of the videos it checked have a
+  credits marker, the percentage, how the last run ended (completed / stopped at
+  the time cap / stopped at the per-run item cap) and how long ago it was. Points
+  the reader at Dashboard → Scheduled Tasks for live progress and manual runs.
+- The summary is process-lifetime only (resets on server restart, repopulates on
+  the next run). No behaviour change to detection or auto-skip.
+
 ## 1.12.0.0 — 2026-09-01
 - `NewItemMonitor` (analyse-new-episodes) now queries just the new episode's own
   series for the consensus check, instead of loading the whole episode library

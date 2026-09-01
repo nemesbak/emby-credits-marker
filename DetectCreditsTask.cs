@@ -71,6 +71,7 @@ namespace Emby.CreditsMarker
             var runClock = System.Diagnostics.Stopwatch.StartNew();
             double maxHours = Math.Max(0, options.MaxRunHours);
             bool OutOfTime() => maxHours > 0 && runClock.Elapsed.TotalHours >= maxHours;
+            string outcome = "completed";
 
             var includeTypes = new List<string>();
             if (options.ProcessEpisodes) includeTypes.Add("Episode");
@@ -160,6 +161,7 @@ namespace Emby.CreditsMarker
                 {
                     _log.Info("CreditsMarker: hit the {0}h run cap after {1} item(s) - stopping, the rest resumes next run.",
                         maxHours, done);
+                    outcome = "stopped at the time cap";
                     break;
                 }
                 done++;
@@ -205,7 +207,7 @@ namespace Emby.CreditsMarker
                             BlackSec = result.Source == "none" ? (double?)null : result.CreditsStartSeconds
                         });
                     }
-                    if (maxAnalyse > 0 && ++analysed >= maxAnalyse) { _log.Info("CreditsMarker: reached the {0}-item cap for this run.", maxAnalyse); break; }
+                    if (maxAnalyse > 0 && ++analysed >= maxAnalyse) { _log.Info("CreditsMarker: reached the {0}-item cap for this run.", maxAnalyse); outcome = "stopped at the per-run item cap"; break; }
                 }
                 catch (OperationCanceledException) { throw; }
                 catch (Exception ex)
@@ -278,6 +280,7 @@ namespace Emby.CreditsMarker
 
             _log.Info("CreditsMarker: done. native-marked={0} black-marked={1} episode-marked={2} fingerprint-marked={3} already-had-one={4} failed={5}",
                 nativeMarked, blackMarked, epMarked, fpMarked, skipped, failed);
+            ScanStats.Record(outcome, done, skipped + nativeMarked + blackMarked + epMarked + fpMarked);
             progress.Report(100);
         }
 

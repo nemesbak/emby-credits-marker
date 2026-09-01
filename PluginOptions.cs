@@ -11,13 +11,22 @@ namespace Emby.CreditsMarker
     {
         public override string EditorTitle => "Credits Marker";
 
-        public override string EditorDescription =>
+        private const string Blurb =
             "Marks where the end credits start so you can skip them - Emby has no built-in "
             + "end-credits detection.\n"
             + "A nightly task (\"Detect end credits\") works out the credits-start point of every "
             + "episode and movie and stores it. On episodes, Emby's player shows the \"Up Next\" "
             + "card exactly there (one click to the next episode). Turn on \"Auto-skip credits\" "
             + "and the server advances episodes by itself, on any client.";
+
+        public override string EditorDescription
+        {
+            get
+            {
+                var status = ScanStats.Describe();
+                return status == null ? Blurb : Blurb + "\n\n" + status;
+            }
+        }
 
         // ─────────────────────────────  What to scan  ─────────────────────────────
 
