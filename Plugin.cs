@@ -6,6 +6,7 @@ using MediaBrowser.Common;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller.Plugins;
 using MediaBrowser.Model.Drawing;
+using MediaBrowser.Model.Plugins;
 
 [assembly: InternalsVisibleTo("Emby.CreditsMarker.Tests")]
 
@@ -15,7 +16,7 @@ namespace Emby.CreditsMarker
     /// Emby plugin that detects end credits and writes a CreditsStart marker,
     /// with an optional server-side auto-skip to the next episode.
     /// </summary>
-    public class Plugin : BasePluginSimpleUI<PluginOptions>, IHasThumbImage
+    public class Plugin : BasePluginSimpleUI<PluginOptions>, IHasThumbImage, IHasTranslations
     {
         public static Plugin Instance { get; private set; }
 
@@ -42,5 +43,13 @@ namespace Emby.CreditsMarker
         }
 
         public ImageFormat ThumbImageFormat => ImageFormat.Png;
+
+        // Settings-page translations. Keys are the English strings in PluginOptions;
+        // strings/<locale>.json maps them to the target language.
+        public TranslationInfo[] GetTranslations() => new[]
+        {
+            new TranslationInfo { Locale = "en-US", EmbeddedResourcePath = GetType().Namespace + ".strings.en-US.json" },
+            new TranslationInfo { Locale = "es-ES", EmbeddedResourcePath = GetType().Namespace + ".strings.es-ES.json" },
+        };
     }
 }

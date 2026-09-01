@@ -1,0 +1,79 @@
+{
+  "Process episodes": "Procesar episodios",
+  "Analyse episodes and mark where the end credits start.": "Analiza los episodios y marca dónde empiezan los créditos finales.",
+
+  "Process movies": "Procesar películas",
+  "Add a visible \"Credits\" chapter to movies (Emby's \"Up Next\" card doesn't apply to films). Off by default.": "Añade un capítulo visible «Créditos» a las películas (la tarjeta «A continuación» de Emby no aplica a películas). Desactivado por defecto.",
+
+  "Libraries": "Bibliotecas",
+  "Comma-separated library names to limit the scan to. Empty = every video library.": "Nombres de biblioteca separados por comas para limitar el análisis. Vacío = todas las bibliotecas de vídeo.",
+
+  "Visible chapter on the seek bar": "Marca visible en la barra de progreso",
+  "Besides the hidden marker, add a visible \"Credits\" tick on the progress bar. Works even if the viewer turned the \"next episode\" overlay off. Recommended.": "Además del marcador oculto, añade una marca «Créditos» visible en la barra de progreso. Funciona aunque el usuario haya apagado el aviso de «siguiente episodio». Recomendado.",
+
+  "Auto-skip credits": "Saltar créditos automáticamente",
+  "When an episode reaches the credits, the server tells the player to jump to the next episode. Works on every client, including iOS. Off by default.": "Cuando un episodio llega a los créditos, el servidor ordena al reproductor pasar al siguiente. Funciona en todos los clientes, iOS incluido. Desactivado por defecto.",
+
+  "Auto-skip users": "Usuarios del salto automático",
+  "Comma-separated usernames the auto-skip applies to. Empty = everyone.": "Nombres de usuario (separados por comas) a los que se aplica el salto automático. Vacío = todos.",
+
+  "Grace before skipping (seconds)": "Margen antes de saltar (segundos)",
+  "Wait this many seconds into the credits before skipping. 0 = skip as soon as they start.": "Espera estos segundos ya dentro de los créditos antes de saltar. 0 = salta en cuanto empiezan.",
+
+  "On-screen notice when skipping": "Aviso en pantalla al saltar",
+  "Show a short message in the player just before the auto-skip, so it doesn't look like a glitch. Rendered the same way as Emby's own notices.": "Muestra un mensaje corto en el reproductor justo antes del salto automático, para que no parezca un fallo. Se ve igual que los avisos propios de Emby.",
+
+  "Notice text": "Texto del aviso",
+  "The message shown when auto-skipping.": "El mensaje que aparece al saltar automáticamente.",
+
+  "Break client playback loops": "Cortar bucles de reproducción del cliente",
+  "If a player gets stuck in a loop (starting one episode after another at full speed - a known Emby for iOS bug with a corrupted play queue), the server sends it a \"Stop\" to break the loop. Doesn't touch normal playback. Recommended.": "Si un reproductor se atasca en bucle (empieza un episodio tras otro a toda velocidad, típico de Emby para iOS con una cola de reproducción corrupta), el servidor le manda un «Stop» para cortarlo. No afecta a la reproducción normal. Recomendado.",
+
+  "Fast scan": "Análisis rápido",
+  "Keyframe-only analysis: ~9x faster, within about 2 s (always lands inside the credits, never early). Recommended.": "Analiza solo fotogramas clave: ~9× más rápido, con ±2 s de margen (siempre cae dentro de los créditos, nunca antes). Recomendado.",
+
+  "Audio-fingerprint fallback": "Huella de audio para créditos sobre imagen",
+  "For series (e.g. anime) whose credits roll over content with no fade to black: finds the recurring end-theme across episodes and marks the whole series. Recommended.": "Para series (p. ej. anime) cuyos créditos van sobre la imagen sin fundido a negro: busca la sintonía final que se repite entre episodios y marca la serie entera. Recomendado.",
+
+  "Re-scan already-marked items": "Volver a analizar lo ya marcado",
+  "Re-analyse items that already have a marker. Only needed if you changed the advanced settings below.": "Vuelve a analizar los ítems que ya tienen marcador. Solo hace falta si cambiaste los ajustes avanzados de abajo.",
+
+  "Analyse new episodes on the fly": "Analizar episodios nuevos al momento",
+  "When an episode is added, analyse it within minutes instead of waiting for the nightly task. If the series already has a consensus it's applied instantly, no ffmpeg. Off by default.": "Cuando se añade un episodio, lo analiza a los pocos minutos en vez de esperar a la tarea nocturna. Si la serie ya tiene consenso, lo aplica al instante sin ffmpeg. Desactivado por defecto.",
+
+  "Advanced · Delay before analysing new items (minutes)": "Avanzado · Espera antes de analizar lo nuevo (minutos)",
+  "How long to wait after an episode is added before analysing it, so a full-season import settles first.": "Cuánto espera tras añadirse un episodio antes de analizarlo, para que una importación de temporada entera se asiente primero.",
+
+  "Advanced · Minimum black block (seconds)": "Avanzado · Negro mínimo (segundos)",
+  "Shortest black-frame block that counts as the start of the credits.": "Duración mínima de fundido a negro que cuenta como inicio de créditos.",
+
+  "Advanced · Search window start (% of runtime)": "Avanzado · Ventana de búsqueda: desde (% de duración)",
+  "Ignore black blocks that start before this point of the total runtime.": "Ignora los negros que empiecen antes de este punto de la duración total.",
+
+  "Advanced · Search window end (% of runtime)": "Avanzado · Ventana de búsqueda: hasta (% de duración)",
+  "Ignore black blocks that start after this point.": "Ignora los negros que empiecen después de este punto.",
+
+  "Advanced · Tail to analyse (% of file)": "Avanzado · Cola a analizar (% del archivo)",
+  "Only analyse the last N% of the file, for speed.": "Analiza solo el último N % del archivo, para ir rápido.",
+
+  "Advanced · Fingerprint: tail compared (%)": "Avanzado · Huella: cola a comparar (%)",
+  "How much of each episode's tail is compared when looking for the recurring theme.": "Qué parte final de cada episodio se compara al buscar la sintonía repetida.",
+
+  "Advanced · Fingerprint: minimum match (seconds)": "Avanzado · Huella: coincidencia mínima (segundos)",
+  "Minimum length of shared audio to accept it as the end-theme.": "Longitud mínima del tramo de audio común para aceptarlo como sintonía final.",
+
+  "Advanced · Fixed-percentage fallback": "Avanzado · Marcar a un % fijo si no se detecta nada",
+  "If neither black analysis nor fingerprinting find anything, mark at a fixed % of the runtime. Rough; off by default.": "Si ni el negro ni la huella encuentran nada, marca a un porcentaje fijo de la duración. Impreciso; desactivado por defecto.",
+
+  "Advanced · Fixed percentage": "Avanzado · Porcentaje fijo",
+  "The point (% of runtime) used by the setting above.": "El punto (% de la duración) donde marca el ajuste anterior.",
+
+  "Advanced · Max items per run": "Avanzado · Máx. ítems por pasada",
+  "0 = unlimited. Useful to spread a big first scan over several nights.": "0 = sin límite. Útil para repartir un primer análisis grande en varias noches.",
+
+  "Advanced · Max hours per run": "Avanzado · Máx. horas por pasada",
+  "Stop the task after this many hours and resume next run (on top of Emby's own cap). 0 = unlimited.": "Corta la tarea tras estas horas y reanuda en la siguiente pasada (además del tope de Emby). 0 = sin límite.",
+
+  "Advanced · ffmpeg timeout per file (seconds)": "Avanzado · Tiempo máximo de ffmpeg por archivo (segundos)",
+  "Abort a file's analysis if ffmpeg takes longer than this.": "Aborta el análisis de un archivo si ffmpeg tarda más de esto."
+}

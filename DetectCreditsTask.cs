@@ -125,7 +125,7 @@ namespace Emby.CreditsMarker
                 _log.Info("CreditsMarker: library filter -> {0}", string.Join(", ", allowedPaths));
             }
 
-            var work = items
+            var candidates = items
                 .Where(i => i != null
                             && !i.IsVirtualItem
                             && i.IsFileProtocol
@@ -136,18 +136,8 @@ namespace Emby.CreditsMarker
                             || allowedPaths.Any(p => i.Path.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
 
-            if (!options.Redetect)
-            {
-                work = work.Where(i => !_markers.HasCreditsMarker(i)).ToList();
-            }
-
-            if (options.MaxItemsPerRun > 0 && work.Count > options.MaxItemsPerRun)
-            {
-                work = work.Take(options.MaxItemsPerRun).ToList();
-            }
-
-            _log.Info("CreditsMarker: {0} item(s) to analyse.", work.Count);
-            if (work.Count == 0)
+            _log.Info("CreditsMarker: {0} item(s) to check.", candidates.Count);
+            if (candidates.Count == 0)
             {
                 progress.Report(100);
                 return;
@@ -155,15 +145,15 @@ namespace Emby.CreditsMarker
 
             var ffmpeg = GetFfmpegPath();
             var detector = new CreditsDetector(ffmpeg, _log);
-            int done = 0, blackMarked = 0, nativeMarked = 0, failed = 0;
+            int done = 0, blackMarked = 0, nativeMarked = 0, skipped = 0, failed = 0, analysed = 0;
+            int maxAnalyse = options.MaxItemsPerRun;
 
-            // pass 1: black-frame detection. Movies are saved immediately; episodes are
-            // collected so we can reconcile each series as a whole afterwards.
-            // Before any analysis: if the file already carries an embedded "Credits" chapter
-            // in the credits zone, that IS the answer - use it, no ffmpeg.
+            // pass 1: chapters are read ONCE per item, then reused for the "already marked?"
+            // check, the embedded-chapter check and the write. Movies are saved immediately;
+            // episodes are collected so we can reconcile each series as a whole afterwards.
             var epResults = new List<EpResult>();
 
-            foreach (var item in work)
+            foreach (var item in candidates)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (OutOfTime())
@@ -172,20 +162,24 @@ namespace Emby.CreditsMarker
                         maxHours, done);
                     break;
                 }
+                done++;
+                progress.Report(done * 80.0 / candidates.Count);
                 try
                 {
                     var ep = item as Episode;
+                    var chapters = _itemRepository.GetChapters(item);   // the only DB read for this item
 
-                    double? native = _markers.NativeCreditsSeconds(item);
+                    if (!options.Redetect && _markers.HasCreditsMarker(item, chapters)) { skipped++; continue; }
+
+                    double? native = _markers.NativeCreditsSeconds(item, chapters);
                     if (native.HasValue)
                     {
                         _markers.SaveMarker(item, native.Value, ep != null,
-                            ep != null && options.AlsoVisibleChapterOnEpisodes);
+                            ep != null && options.AlsoVisibleChapterOnEpisodes, chapters);
                         nativeMarked++;
                         _log.Info("CreditsMarker: '{0}' -> {1} (embedded chapter, no analysis).",
                             DisplayName(item), FormatTime(native.Value));
-                        done++;
-                        progress.Report(done * 80.0 / work.Count);
+                        if (maxAnalyse > 0 && ++analysed >= maxAnalyse) { _log.Info("CreditsMarker: reached the {0}-item cap for this run.", maxAnalyse); break; }
                         continue;
                     }
 
@@ -196,7 +190,7 @@ namespace Emby.CreditsMarker
                     {
                         if (result.Source != "none")
                         {
-                            _markers.SaveMarker(item, result.CreditsStartSeconds, false, false);
+                            _markers.SaveMarker(item, result.CreditsStartSeconds, false, false, chapters);
                             blackMarked++;
                             _log.Info("CreditsMarker: '{0}' -> Chapter at {1} ({2})",
                                 DisplayName(item), FormatTime(result.CreditsStartSeconds), result.Detail);
@@ -211,6 +205,7 @@ namespace Emby.CreditsMarker
                             BlackSec = result.Source == "none" ? (double?)null : result.CreditsStartSeconds
                         });
                     }
+                    if (maxAnalyse > 0 && ++analysed >= maxAnalyse) { _log.Info("CreditsMarker: reached the {0}-item cap for this run.", maxAnalyse); break; }
                 }
                 catch (OperationCanceledException) { throw; }
                 catch (Exception ex)
@@ -218,8 +213,6 @@ namespace Emby.CreditsMarker
                     failed++;
                     _log.ErrorException("CreditsMarker: error processing '{0}'", ex, DisplayName(item));
                 }
-                done++;
-                progress.Report(done * 80.0 / work.Count);
             }
 
             // pass 2: reconcile each series. Where black detection is consistent, use it (and
@@ -283,8 +276,8 @@ namespace Emby.CreditsMarker
                 catch (Exception ex) { _log.ErrorException("CreditsMarker: fingerprint pass failed", ex); }
             }
 
-            _log.Info("CreditsMarker: done. native-marked={0} black-marked={1} episode-marked={2} fingerprint-marked={3} failed={4}",
-                nativeMarked, blackMarked, epMarked, fpMarked, failed);
+            _log.Info("CreditsMarker: done. native-marked={0} black-marked={1} episode-marked={2} fingerprint-marked={3} already-had-one={4} failed={5}",
+                nativeMarked, blackMarked, epMarked, fpMarked, skipped, failed);
             progress.Report(100);
         }
 

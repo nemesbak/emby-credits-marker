@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.11.0.0 — 2026-09-01
+- **Scheduled task reads each item's chapters once** (was twice - one read to
+  filter already-marked items, another for the embedded-chapter check). The
+  "already marked?" test, the embedded-chapter test and the write all share that
+  one read now. `Max items per run` counts items actually analysed, not skipped.
+- **Settings page is translatable** (`IHasTranslations` + `[DisplayNameL]` /
+  `[DescriptionL]`). English strings are the keys; `strings/es-ES.json` ships a
+  full Spanish translation. Other locales just fall back to English.
+- No behaviour change.
+
 ## 1.10.0.0 — 2026-09-01
 - Polish pass for a public release:
   - Config UI text is now English (was bilingual); the notice text default is

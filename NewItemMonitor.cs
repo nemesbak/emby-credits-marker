@@ -136,15 +136,17 @@ namespace Emby.CreditsMarker
                         if (rtt <= 60L * TicksPerSecond) { skipped++; continue; }  // no media info (yet) - nightly task will get it
                         if (allowedPaths.Count > 0 &&
                             !allowedPaths.Any(x => ep.Path.StartsWith(x, StringComparison.OrdinalIgnoreCase))) { skipped++; continue; }
-                        if (_markers.HasCreditsMarker(ep)) { skipped++; continue; }
+
+                        var chapters = _itemRepository.GetChapters(ep);   // one read, reused below
+                        if (_markers.HasCreditsMarker(ep, chapters)) { skipped++; continue; }
 
                         double rt = rtt / (double)TicksPerSecond;
 
                         // 0) embedded "Credits" chapter -> use it, no analysis
-                        var nativeSec = _markers.NativeCreditsSeconds(ep);
+                        var nativeSec = _markers.NativeCreditsSeconds(ep, chapters);
                         if (nativeSec.HasValue)
                         {
-                            _markers.SaveMarker(ep, nativeSec.Value, true, opts.AlsoVisibleChapterOnEpisodes);
+                            _markers.SaveMarker(ep, nativeSec.Value, true, opts.AlsoVisibleChapterOnEpisodes, chapters);
                             marked++;
                             _log.Info("CreditsMarker: new episode '{0}' -> {1} (embedded chapter, no analysis).",
                                 MarkerWriter.Describe(ep), FormatTime(nativeSec.Value));

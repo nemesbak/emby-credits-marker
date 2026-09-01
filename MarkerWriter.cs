@@ -41,28 +41,28 @@ namespace Emby.CreditsMarker
         /// </summary>
         public bool HasCreditsMarker(BaseItem item)
         {
-            try
-            {
-                var chapters = _itemRepository.GetChapters(item);
-                if (chapters == null || chapters.Count == 0) return false;
-
-                if (chapters.Any(c => c.MarkerType == MarkerType.CreditsStart)) return true;
-
-                if (!(item is Episode))
-                {
-                    long rt = item.RunTimeTicks ?? 0;
-                    return chapters.Any(c => c.MarkerType == MarkerType.Chapter
-                        && string.Equals(c.Name, MarkerName, StringComparison.Ordinal)
-                        && (rt <= 0 || c.StartPositionTicks >= (long)(rt * 0.55)));
-                }
-
-                return false;
-            }
+            try { return HasCreditsMarker(item, _itemRepository.GetChapters(item)); }
             catch (Exception ex)
             {
                 _log.ErrorException("CreditsMarker: GetChapters failed for '{0}'", ex, Describe(item));
                 return false;
             }
+        }
+
+        /// <summary>Same check against an already-fetched chapter list (no second DB read).</summary>
+        public bool HasCreditsMarker(BaseItem item, IReadOnlyList<ChapterInfo> chapters)
+        {
+            if (chapters == null || chapters.Count == 0) return false;
+            if (chapters.Any(c => c.MarkerType == MarkerType.CreditsStart)) return true;
+
+            if (!(item is Episode))
+            {
+                long rt = item.RunTimeTicks ?? 0;
+                return chapters.Any(c => c.MarkerType == MarkerType.Chapter
+                    && string.Equals(c.Name, MarkerName, StringComparison.Ordinal)
+                    && (rt <= 0 || c.StartPositionTicks >= (long)(rt * 0.55)));
+            }
+            return false;
         }
 
         /// <summary>Existing CreditsStart position (seconds) for an item, or null.</summary>
@@ -88,9 +88,13 @@ namespace Emby.CreditsMarker
         /// </summary>
         public double? NativeCreditsSeconds(BaseItem item)
         {
-            List<ChapterInfo> chapters;
-            try { chapters = _itemRepository.GetChapters(item); }
+            try { return NativeCreditsSeconds(item, _itemRepository.GetChapters(item)); }
             catch { return null; }
+        }
+
+        /// <summary>Same, against an already-fetched chapter list (no second DB read).</summary>
+        public double? NativeCreditsSeconds(BaseItem item, IReadOnlyList<ChapterInfo> chapters)
+        {
             if (chapters == null || chapters.Count == 0) return null;
 
             long rt = item.RunTimeTicks ?? 0;
@@ -150,9 +154,12 @@ namespace Emby.CreditsMarker
             return EndCreditsNames.Contains(n);
         }
 
-        public void SaveMarker(BaseItem item, double seconds, bool isEpisode, bool alsoVisibleChapter)
+        public void SaveMarker(BaseItem item, double seconds, bool isEpisode, bool alsoVisibleChapter,
+            IReadOnlyList<ChapterInfo> knownChapters = null)
         {
-            var original = _itemRepository.GetChapters(item) ?? new List<ChapterInfo>();
+            IReadOnlyList<ChapterInfo> original = knownChapters
+                ?? (IReadOnlyList<ChapterInfo>)_itemRepository.GetChapters(item)
+                ?? new List<ChapterInfo>();
             long ticks = (long)Math.Round(seconds * TicksPerSecond);
 
             // Keep everything that isn't ours: intro markers, the file's real chapters -
