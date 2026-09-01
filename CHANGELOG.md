@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.12.0.0 — 2026-09-01
+- `NewItemMonitor` (analyse-new-episodes) now queries just the new episode's own
+  series for the consensus check, instead of loading the whole episode library
+  into memory on the tick.
+- The embedded-chapter shortcut no longer counts against `Max items per run` -
+  that cap is meant to pace the ffmpeg work, and reading a chapter is free.
+- `NewItemMonitor` reuses the one chapter read for its consensus / analysis writes
+  too.
+
 ## 1.11.0.0 — 2026-09-01
 - **Scheduled task reads each item's chapters once** (was twice - one read to
   filter already-marked items, another for the embedded-chapter check). The

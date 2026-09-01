@@ -174,12 +174,12 @@ namespace Emby.CreditsMarker
                     double? native = _markers.NativeCreditsSeconds(item, chapters);
                     if (native.HasValue)
                     {
+                        // embedded chapter -> free, doesn't count toward the per-run analysis cap
                         _markers.SaveMarker(item, native.Value, ep != null,
                             ep != null && options.AlsoVisibleChapterOnEpisodes, chapters);
                         nativeMarked++;
                         _log.Info("CreditsMarker: '{0}' -> {1} (embedded chapter, no analysis).",
                             DisplayName(item), FormatTime(native.Value));
-                        if (maxAnalyse > 0 && ++analysed >= maxAnalyse) { _log.Info("CreditsMarker: reached the {0}-item cap for this run.", maxAnalyse); break; }
                         continue;
                     }
 

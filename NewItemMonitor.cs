@@ -113,9 +113,6 @@ namespace Emby.CreditsMarker
                 if (due.Count == 0) return;
 
                 var allowedPaths = ResolveAllowedPaths(opts);
-
-                // one library read for the whole tick, to find already-marked siblings
-                Dictionary<long, List<Episode>> bySeries = null;
                 var consensusCache = new Dictionary<long, double?>();
 
                 string ffmpeg = null;
@@ -158,14 +155,13 @@ namespace Emby.CreditsMarker
                         long sid = ep.SeriesId;
                         if (!consensusCache.TryGetValue(sid, out consensus))
                         {
-                            if (bySeries == null) bySeries = LoadEpisodesBySeries();
-                            consensus = SeriesConsensusFraction(sid, bySeries);
+                            consensus = sid == 0 ? (double?)null : SeriesConsensusFraction(LoadSeriesEpisodes(sid));
                             consensusCache[sid] = consensus;
                         }
 
                         if (consensus.HasValue)
                         {
-                            _markers.SaveMarker(ep, rt * consensus.Value, true, opts.AlsoVisibleChapterOnEpisodes);
+                            _markers.SaveMarker(ep, rt * consensus.Value, true, opts.AlsoVisibleChapterOnEpisodes, chapters);
                             marked++;
                             _log.Info("CreditsMarker: new episode '{0}' -> {1:0.0}% (series consensus, no analysis).",
                                 MarkerWriter.Describe(ep), 100 * consensus.Value);
@@ -181,7 +177,7 @@ namespace Emby.CreditsMarker
                         var det = detector.Detect(ep.Path, rt, opts, CancellationToken.None);
                         if (det.Source != "none")
                         {
-                            _markers.SaveMarker(ep, det.CreditsStartSeconds, true, opts.AlsoVisibleChapterOnEpisodes);
+                            _markers.SaveMarker(ep, det.CreditsStartSeconds, true, opts.AlsoVisibleChapterOnEpisodes, chapters);
                             marked++;
                             _log.Info("CreditsMarker: new episode '{0}' -> {1} ({2}).",
                                 MarkerWriter.Describe(ep), FormatTime(det.CreditsStartSeconds), det.Source);
@@ -218,42 +214,32 @@ namespace Emby.CreditsMarker
             }
         }
 
-        private Dictionary<long, List<Episode>> LoadEpisodesBySeries()
+        /// <summary>Just this series' episodes (not the whole library).</summary>
+        private BaseItem[] LoadSeriesEpisodes(long seriesId)
         {
-            var map = new Dictionary<long, List<Episode>>();
             try
             {
-                var all = _libraryManager.GetItemList(new InternalItemsQuery
+                return _libraryManager.GetItemList(new InternalItemsQuery
                 {
                     Recursive = true,
-                    IncludeItemTypes = new[] { "Episode" }
+                    IncludeItemTypes = new[] { "Episode" },
+                    SeriesIds = new[] { seriesId }
                 });
-                foreach (var it in all)
-                {
-                    var ep = it as Episode;
-                    if (ep == null || ep.SeriesId == 0) continue;
-                    if (!map.TryGetValue(ep.SeriesId, out var list))
-                    {
-                        list = new List<Episode>();
-                        map[ep.SeriesId] = list;
-                    }
-                    list.Add(ep);
-                }
             }
             catch (Exception ex)
             {
                 _log.ErrorException("CreditsMarker: could not list episodes for consensus", ex);
+                return Array.Empty<BaseItem>();
             }
-            return map;
         }
 
         /// <summary>Median credits fraction of a series' already-marked episodes, if they agree.</summary>
-        private double? SeriesConsensusFraction(long seriesId, Dictionary<long, List<Episode>> bySeries)
+        private double? SeriesConsensusFraction(BaseItem[] episodes)
         {
-            if (seriesId == 0 || !bySeries.TryGetValue(seriesId, out var eps)) return null;
+            if (episodes == null || episodes.Length == 0) return null;
 
             var fracs = new List<double>();
-            foreach (var s in eps)
+            foreach (var s in episodes)
             {
                 long rtt = s.RunTimeTicks ?? 0;
                 if (rtt <= 0) continue;
