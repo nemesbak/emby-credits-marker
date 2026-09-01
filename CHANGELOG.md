@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.10.0.0 — 2026-09-01
+- Polish pass for a public release:
+  - Config UI text is now English (was bilingual); the notice text default is
+    English too.
+  - ffmpeg path comes from `IFfmpegManager` (the non-deprecated API); builds with
+    zero warnings.
+  - ffmpeg is invoked via `ProcessStartInfo.ArgumentList` instead of a formatted
+    string — no quoting edge cases on odd paths.
+  - Series grouping in the reconcile pass keys on a stable string, not
+    `string.GetHashCode()` (which is randomised per process on .NET Core and made
+    grouping inconsistent between runs for episodes with no SeriesId).
+  - Added a unit-test project (`LooksLikeEndCredits`, `DensestCluster`,
+    `LongestCommonRun`) wired into CI.
+  - SPDX license headers; README badges.
+- No behaviour change.
+
 ## 1.9.0.0 — 2026-09-01
 - **On-screen notice on auto-skip** (`AutoSkipNotice`, on by default). Just before
   the server jumps to the next episode, it sends the client a short message

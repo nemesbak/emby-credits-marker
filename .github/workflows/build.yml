@@ -37,6 +37,9 @@ jobs:
       - name: Build
         run: dotnet build Emby.CreditsMarker.csproj -c Release -o out
 
+      - name: Test
+        run: dotnet test tests/Emby.CreditsMarker.Tests/Emby.CreditsMarker.Tests.csproj -c Release
+
       - name: Checksum
         run: |
           cd out

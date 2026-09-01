@@ -2,8 +2,13 @@
 
 # Emby Credits Marker
 
-**Salta los créditos finales en Emby — algo que no trae de fábrica.**
 **Skip the end credits in Emby — a feature it has no built-in equivalent for.**
+**Salta los créditos finales en Emby — algo que no trae de fábrica.**
+
+[![build](https://github.com/nemesbak/emby-credits-marker/actions/workflows/build.yml/badge.svg)](https://github.com/nemesbak/emby-credits-marker/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/nemesbak/emby-credits-marker?sort=semver)](https://github.com/nemesbak/emby-credits-marker/releases/latest)
+[![license](https://img.shields.io/github/license/nemesbak/emby-credits-marker)](LICENSE)
+[![Emby](https://img.shields.io/badge/Emby-4.9-52b54b)](https://emby.media)
 
 </div>
 

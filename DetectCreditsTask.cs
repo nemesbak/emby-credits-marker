@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,19 +22,19 @@ namespace Emby.CreditsMarker
 
         private readonly ILibraryManager _libraryManager;
         private readonly IItemRepository _itemRepository;
-        private readonly IMediaEncoder _mediaEncoder;
+        private readonly IFfmpegManager _ffmpegManager;
         private readonly ILogger _log;
         private readonly MarkerWriter _markers;
 
         public DetectCreditsTask(
             ILibraryManager libraryManager,
             IItemRepository itemRepository,
-            IMediaEncoder mediaEncoder,
+            IFfmpegManager ffmpegManager,
             ILogManager logManager)
         {
             _libraryManager = libraryManager;
             _itemRepository = itemRepository;
-            _mediaEncoder = mediaEncoder;
+            _ffmpegManager = ffmpegManager;
             _log = logManager.GetLogger("CreditsMarker");
             _markers = new MarkerWriter(_itemRepository, _log);
         }
@@ -226,8 +227,9 @@ namespace Emby.CreditsMarker
             int epMarked = 0, fpMarked = 0;
             var fpCandidates = new List<List<EpResult>>();
 
-            foreach (var g in epResults.GroupBy(r => r.Ep.SeriesId != 0 ? r.Ep.SeriesId
-                                                    : (long)(r.Ep.SeriesName ?? "?").GetHashCode()))
+            foreach (var g in epResults.GroupBy(r => r.Ep.SeriesId != 0
+                                                    ? "id:" + r.Ep.SeriesId.ToString(CultureInfo.InvariantCulture)
+                                                    : "name:" + (r.Ep.SeriesName ?? "?")))
             {
                 var eps = g.ToList();
                 var fracs = eps.Where(e => e.BlackSec.HasValue)
@@ -403,7 +405,7 @@ namespace Emby.CreditsMarker
         }
 
         /// <summary>Largest subset of sorted values that fits inside a window of the given width.</summary>
-        private static List<double> DensestCluster(List<double> sorted, double window)
+        internal static List<double> DensestCluster(List<double> sorted, double window)
         {
             int bestStart = 0, bestLen = 0;
             for (int i = 0; i < sorted.Count; i++)
@@ -431,20 +433,7 @@ namespace Emby.CreditsMarker
             public double Fps;
         }
 
-        private string GetFfmpegPath()
-        {
-            try
-            {
-                var cfg = _mediaEncoder.FfmpegConfig;
-                var prop = cfg?.GetType().GetProperty("EncoderPath");
-                var path = prop?.GetValue(cfg) as string;
-                if (!string.IsNullOrEmpty(path)) return path;
-            }
-            catch { }
-#pragma warning disable CS0618
-            return _mediaEncoder.EncoderPath;
-#pragma warning restore CS0618
-        }
+        private string GetFfmpegPath() => _ffmpegManager.FfmpegConfiguration.EncoderPath;
 
         private static string DisplayName(BaseItem item)
         {

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace Emby.CreditsMarker
 
         private readonly ILibraryManager _libraryManager;
         private readonly IItemRepository _itemRepository;
-        private readonly IMediaEncoder _mediaEncoder;
+        private readonly IFfmpegManager _ffmpegManager;
         private readonly ILogger _log;
         private readonly MarkerWriter _markers;
 
@@ -43,11 +44,11 @@ namespace Emby.CreditsMarker
         private int _busy;
 
         public NewItemMonitor(ILibraryManager libraryManager, IItemRepository itemRepository,
-            IMediaEncoder mediaEncoder, ILogManager logManager)
+            IFfmpegManager ffmpegManager, ILogManager logManager)
         {
             _libraryManager = libraryManager;
             _itemRepository = itemRepository;
-            _mediaEncoder = mediaEncoder;
+            _ffmpegManager = ffmpegManager;
             _log = logManager.GetLogger("CreditsMarker");
             _markers = new MarkerWriter(_itemRepository, _log);
         }
@@ -300,20 +301,7 @@ namespace Emby.CreditsMarker
             return paths;
         }
 
-        private string GetFfmpegPath()
-        {
-            try
-            {
-                var cfg = _mediaEncoder.FfmpegConfig;
-                var prop = cfg?.GetType().GetProperty("EncoderPath");
-                var path = prop?.GetValue(cfg) as string;
-                if (!string.IsNullOrEmpty(path)) return path;
-            }
-            catch { }
-#pragma warning disable CS0618
-            return _mediaEncoder.EncoderPath;
-#pragma warning restore CS0618
-        }
+        private string GetFfmpegPath() => _ffmpegManager.FfmpegConfiguration.EncoderPath;
 
         private static string FormatTime(double seconds)
         {

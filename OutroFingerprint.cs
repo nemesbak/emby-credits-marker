@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,12 +41,17 @@ namespace Emby.CreditsMarker
                 var psi = new ProcessStartInfo
                 {
                     FileName = _ffmpegPath,
-                    Arguments = "-hide_banner -nostdin -f lavfi -i sine=frequency=440:sample_rate=11025:duration=6 -ac 1 -f chromaprint -fp_format raw -",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     CreateNoWindow = true
                 };
+                foreach (var a in new[]
+                {
+                    "-hide_banner", "-nostdin", "-f", "lavfi",
+                    "-i", "sine=frequency=440:sample_rate=11025:duration=6",
+                    "-ac", "1", "-f", "chromaprint", "-fp_format", "raw", "-"
+                }) psi.ArgumentList.Add(a);
                 using (var p = new Process { StartInfo = psi })
                 {
                     p.Start();
@@ -73,19 +79,22 @@ namespace Emby.CreditsMarker
         /// <summary>Raw chromaprint sub-fingerprints (uint32) for [startSec, startSec+durSec).</summary>
         public uint[] Fingerprint(string filePath, double startSec, double durSec, int timeoutSeconds, CancellationToken ct)
         {
-            var args = string.Format(CultureInfo.InvariantCulture,
-                "-hide_banner -nostdin -ss {0:0.###} -i \"{1}\" -t {2:0.###} -ac 1 -map 0:a:0 -f chromaprint -fp_format raw -",
-                startSec, filePath, durSec);
-
             var psi = new ProcessStartInfo
             {
                 FileName = _ffmpegPath,
-                Arguments = args,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
             };
+            foreach (var a in new[]
+            {
+                "-hide_banner", "-nostdin",
+                "-ss", startSec.ToString("0.###", CultureInfo.InvariantCulture),
+                "-i", filePath,
+                "-t", durSec.ToString("0.###", CultureInfo.InvariantCulture),
+                "-ac", "1", "-map", "0:a:0", "-f", "chromaprint", "-fp_format", "raw", "-"
+            }) psi.ArgumentList.Add(a);
 
             using (var p = new Process { StartInfo = psi })
             {

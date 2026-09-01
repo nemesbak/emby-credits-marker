@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,11 +49,20 @@ namespace Emby.CreditsMarker
 
             // Fast mode decodes only keyframes (~10x quicker). Detection then resolves to the
             // keyframe grid (a couple of seconds), which is plenty for a 60-100s credits block.
-            string fast = o.FastKeyframeScan ? "-skip_frame nokey " : string.Empty;
             double detDur = o.FastKeyframeScan ? 0.1 : minBlack;
-            string args = string.Format(CultureInfo.InvariantCulture,
-                "-hide_banner -nostdin {0}-ss {1:0.###} -i \"{2}\" -vf blackdetect=d={3:0.###}:pix_th=0.10 -an -sn -f null -",
-                fast, analyzeFrom, filePath, detDur);
+            var args = new List<string> { "-hide_banner", "-nostdin" };
+            if (o.FastKeyframeScan) { args.Add("-skip_frame"); args.Add("nokey"); }
+            args.Add("-ss");
+            args.Add(analyzeFrom.ToString("0.###", CultureInfo.InvariantCulture));
+            args.Add("-i");
+            args.Add(filePath);
+            args.Add("-vf");
+            args.Add("blackdetect=d=" + detDur.ToString("0.###", CultureInfo.InvariantCulture) + ":pix_th=0.10");
+            args.Add("-an");
+            args.Add("-sn");
+            args.Add("-f");
+            args.Add("null");
+            args.Add("-");
 
             string stderr;
             try
@@ -103,17 +113,17 @@ namespace Emby.CreditsMarker
             return res;
         }
 
-        private string RunFfmpeg(string args, int timeoutSeconds, CancellationToken ct)
+        private string RunFfmpeg(IEnumerable<string> args, int timeoutSeconds, CancellationToken ct)
         {
             var psi = new ProcessStartInfo
             {
                 FileName = _ffmpegPath,
-                Arguments = args,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true
             };
+            foreach (var a in args) psi.ArgumentList.Add(a);
 
             using (var p = new Process { StartInfo = psi })
             {

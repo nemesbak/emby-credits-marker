@@ -1,9 +1,13 @@
+// SPDX-License-Identifier: MIT
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using MediaBrowser.Common;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller.Plugins;
 using MediaBrowser.Model.Drawing;
+
+[assembly: InternalsVisibleTo("Emby.CreditsMarker.Tests")]
 
 namespace Emby.CreditsMarker
 {
@@ -25,14 +29,12 @@ namespace Emby.CreditsMarker
         public override string Name => "Credits Marker";
 
         public override string Description =>
-            "Marca dónde empiezan los créditos finales para poder saltarlos: tarjeta «A continuación» a tiempo "
-            + "y salto automático opcional al siguiente episodio en cualquier cliente. "
-            + "// Marks where the end credits start so you can skip them: an on-time \"Up Next\" card "
-            + "plus an optional server-side auto-skip to the next episode, on any client.";
+            "Detects where the end credits start and marks it, so the \"Up Next\" card shows on time "
+            + "- plus an optional server-side auto-skip to the next episode, on any client.";
 
         public PluginOptions GetConfiguredOptions() => GetOptions();
 
-        // Plugin icon shown in Dashboard → Plugins.
+        // Plugin icon shown in Dashboard -> Plugins.
         public Stream GetThumbImage()
         {
             var type = GetType();
