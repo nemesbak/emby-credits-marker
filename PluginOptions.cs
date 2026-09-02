@@ -23,8 +23,9 @@ namespace Emby.CreditsMarker
         {
             get
             {
+                var blurb = Localization.T(Blurb);
                 var status = ScanStats.Describe();
-                return status == null ? Blurb : Blurb + "\n\n" + status;
+                return status == null ? blurb : blurb + "\n\n" + status;
             }
         }
 

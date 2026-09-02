@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.14.0.0 — 2026-09-02
+- **The settings page now actually shows in the server's language.** Emby 4.9
+  renders a server-side plugin's `[DisplayNameL]` / `[DescriptionL]` verbatim -
+  its `IHasTranslations` path only localises plugins that ship their own web UI.
+  So the plugin now localises the form itself: a `TypeDescriptionProvider` swaps
+  each label, description, the intro text and the coverage line for the current
+  UI culture at render time (Emby sets the thread culture from the client's
+  `X-Emby-Language`). English stays the source of truth; the same
+  `strings/<locale>.json` files provide the translations. Ships Spanish; any
+  other locale falls back to English exactly as before.
+- No change to detection or auto-skip.
+
 ## 1.13.0.0 — 2026-09-02
 - **Coverage line on the settings page.** After the nightly task runs, the plugin
   description shows a one-line summary: how many of the videos it checked have a

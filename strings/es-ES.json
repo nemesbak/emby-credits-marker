@@ -75,5 +75,18 @@
   "Stop the task after this many hours and resume next run (on top of Emby's own cap). 0 = unlimited.": "Corta la tarea tras estas horas y reanuda en la siguiente pasada (además del tope de Emby). 0 = sin límite.",
 
   "Advanced · ffmpeg timeout per file (seconds)": "Avanzado · Tiempo máximo de ffmpeg por archivo (segundos)",
-  "Abort a file's analysis if ffmpeg takes longer than this.": "Aborta el análisis de un archivo si ffmpeg tarda más de esto."
+  "Abort a file's analysis if ffmpeg takes longer than this.": "Aborta el análisis de un archivo si ffmpeg tarda más de esto.",
+
+  "Marks where the end credits start so you can skip them - Emby has no built-in end-credits detection.\nA nightly task (\"Detect end credits\") works out the credits-start point of every episode and movie and stores it. On episodes, Emby's player shows the \"Up Next\" card exactly there (one click to the next episode). Turn on \"Auto-skip credits\" and the server advances episodes by itself, on any client.": "Marca dónde empiezan los créditos finales para que puedas saltártelos: Emby no trae detección de créditos de fábrica.\nUna tarea nocturna («Detect end credits») calcula el punto de inicio de los créditos de cada episodio y película y lo guarda. En los episodios, el reproductor de Emby muestra la tarjeta «A continuación» justo ahí (un clic al siguiente episodio). Activa «Saltar créditos automáticamente» y el servidor pasa de episodio él solo, en cualquier cliente.",
+
+  "Coverage: {0:N0} of {1:N0} videos checked have a credits marker ({2:0}%). Last scan: {3}, {4}. Live progress and manual runs: Dashboard → Scheduled Tasks → \"Detect end credits\".": "Cobertura: {0:N0} de {1:N0} vídeos analizados tienen marcador de créditos ({2:0} %). Último análisis: {3}, {4}. Progreso en vivo y ejecución manual: Panel → Tareas programadas → «Detect end credits».",
+
+  "completed": "completado",
+  "stopped at the time cap": "detenido por el límite de tiempo",
+  "stopped at the per-run item cap": "detenido por el límite de ítems por pasada",
+
+  "just now": "ahora mismo",
+  "{0} min ago": "hace {0} min",
+  "{0} h ago": "hace {0} h",
+  "{0} days ago": "hace {0} días"
 }

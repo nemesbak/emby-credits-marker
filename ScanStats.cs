@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 using System;
-using System.Globalization;
 
 namespace Emby.CreditsMarker
 {
@@ -32,15 +31,15 @@ namespace Emby.CreditsMarker
             double pct = Checked > 0 ? 100.0 * WithMarker / Checked : 0;
             var ago = DateTime.UtcNow - LastRunUtc;
             string when =
-                ago.TotalMinutes < 2  ? "just now" :
-                ago.TotalMinutes < 90 ? ((int)Math.Round(ago.TotalMinutes)) + " min ago" :
-                ago.TotalHours < 48   ? ((int)Math.Round(ago.TotalHours)) + " h ago" :
-                                        ((int)ago.TotalDays) + " days ago";
+                ago.TotalMinutes < 2  ? Localization.T("just now") :
+                ago.TotalMinutes < 90 ? Localization.TF("{0} min ago", (int)Math.Round(ago.TotalMinutes)) :
+                ago.TotalHours < 48   ? Localization.TF("{0} h ago", (int)Math.Round(ago.TotalHours)) :
+                                        Localization.TF("{0} days ago", (int)ago.TotalDays);
 
-            return string.Format(CultureInfo.InvariantCulture,
+            return Localization.TF(
                 "Coverage: {0:N0} of {1:N0} videos checked have a credits marker ({2:0}%). "
                 + "Last scan: {3}, {4}. Live progress and manual runs: Dashboard → Scheduled Tasks → \"Detect end credits\".",
-                WithMarker, Checked, pct, Outcome, when);
+                WithMarker, Checked, pct, Localization.T(Outcome), when);
         }
     }
 }

@@ -17,6 +17,17 @@
     <ProjectReference Include="..\..\Emby.CreditsMarker.csproj" />
   </ItemGroup>
 
+  <!-- Compile-time references to the same Emby assemblies the plugin builds
+       against, so tests can touch plugin types whose base classes live in
+       Emby.Web.GenericEdit etc. -->
+  <ItemGroup>
+    <_EmbyLib Include="..\..\lib\*.dll" />
+    <Reference Include="@(_EmbyLib->'%(Filename)')">
+      <HintPath>%(_EmbyLib.Identity)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
   <!-- The plugin's types reference Emby assemblies, so the CLR must find them at
        test runtime. Copy the same reference set the plugin builds against
        (CI populates ../../lib) next to the test assembly. -->

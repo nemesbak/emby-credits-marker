@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using Emby.CreditsMarker;
 using Xunit;
@@ -75,4 +77,100 @@ public class LongestCommonRunTests
     [Fact]
     public void FramesToSeconds_is_monotonic()
         => Assert.True(OutroFingerprint.FramesToSeconds(100) < OutroFingerprint.FramesToSeconds(200));
+}
+
+public class LocalizationTests
+{
+    private static void WithCulture(string name, System.Action body)
+    {
+        var prevUi = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(name);
+            body();
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = prevUi;
+        }
+    }
+
+    [Fact]
+    public void Translates_a_known_string_for_spanish()
+        => WithCulture("es", () => Assert.Equal("Procesar episodios", Localization.T("Process episodes")));
+
+    [Fact]
+    public void Regional_spanish_falls_back_to_neutral_table()
+        => WithCulture("es-MX", () => Assert.Equal("Procesar episodios", Localization.T("Process episodes")));
+
+    [Fact]
+    public void Unknown_language_stays_english()
+        => WithCulture("de", () => Assert.Equal("Process episodes", Localization.T("Process episodes")));
+
+    [Fact]
+    public void Unknown_key_is_returned_unchanged()
+        => WithCulture("es", () => Assert.Equal("not a real label", Localization.T("not a real label")));
+
+    [Fact]
+    public void Format_helper_fills_placeholders_from_translated_string()
+        => WithCulture("es", () => Assert.Equal("hace 5 min", Localization.TF("{0} min ago", 5)));
+}
+
+public class LocalizedDescriptorTests
+{
+    private static readonly object Gate = new object();
+    private static bool _registered;
+
+    private static PropertyDescriptorCollection LocalisedProps()
+    {
+        lock (Gate)
+        {
+            if (!_registered)
+            {
+                // mirror what Plugin's constructor does
+                TypeDescriptor.AddProvider(
+                    new LocalizedTypeDescriptionProvider(TypeDescriptor.GetProvider(typeof(PluginOptions))),
+                    typeof(PluginOptions));
+                _registered = true;
+            }
+        }
+        return TypeDescriptor.GetProperties(new PluginOptions());
+    }
+
+    [Fact]
+    public void Descriptor_display_name_and_description_are_localised()
+    {
+        var prevUi = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("es");
+            var p = LocalisedProps()["ProcessEpisodes"];
+            Assert.Equal("Procesar episodios", p.DisplayName);
+            Assert.Equal("Analiza los episodios y marca dónde empiezan los créditos finales.", p.Description);
+
+            // Emby reads the label off the attribute, not the descriptor
+            var dn = p.Attributes.OfType<DisplayNameAttribute>().First();
+            Assert.Equal("Procesar episodios", dn.DisplayName);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = prevUi;
+        }
+    }
+
+    [Fact]
+    public void Descriptor_stays_english_for_other_languages()
+    {
+        var prevUi = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("fr");
+            var p = LocalisedProps()["ProcessEpisodes"];
+            Assert.Equal("Process episodes", p.DisplayName);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = prevUi;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using MediaBrowser.Common;
@@ -23,6 +24,20 @@ namespace Emby.CreditsMarker
         public Plugin(IApplicationHost applicationHost) : base(applicationHost)
         {
             Instance = this;
+
+            // Emby renders a SimpleUI plugin's [DisplayNameL]/[DescriptionL] verbatim
+            // (its translation system only covers plugins with their own JS UI), so
+            // localise the settings form ourselves - see Localization.cs.
+            try
+            {
+                TypeDescriptor.AddProvider(
+                    new LocalizedTypeDescriptionProvider(TypeDescriptor.GetProvider(typeof(PluginOptions))),
+                    typeof(PluginOptions));
+            }
+            catch
+            {
+                // non-fatal: without it the form just stays English
+            }
         }
 
         public override Guid Id => new Guid("7c1f4d2e-8a63-4b91-b0e5-9d3a2f6c1e40");
