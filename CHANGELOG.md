@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.16.0.0 — 2026-09-02
+- The auto-skip notice now has a title line: **"End credits"** (localised) as the
+  header and **"Skipping credits"** as the body, shown for 4 s. Clients that
+  render the header (e.g. Android TV) show it as a two-line native notice; others
+  show just the body. This is still `GeneralCommand` "DisplayMessage" - the only
+  server->client notice primitive.
+
 ## 1.15.0.0 — 2026-09-02
 - **The auto-skip on-screen notice is now localised** and shown in the server's UI
   language (there is no per-client language available outside an HTTP request, so

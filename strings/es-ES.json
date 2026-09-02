@@ -25,6 +25,7 @@
 
   "Notice text": "Texto del aviso",
   "The message shown when auto-skipping. Leave empty to use a built-in message in the server's language.": "El mensaje que aparece al saltar automáticamente. Déjalo vacío para usar un mensaje integrado en el idioma del servidor.",
+  "End credits": "Créditos finales",
   "Skipping credits": "Saltando créditos",
 
   "Break client playback loops": "Cortar bucles de reproducción del cliente",

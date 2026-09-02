@@ -449,13 +449,15 @@ namespace Emby.CreditsMarker
                     100.0 * credits / runtime, session.PlaylistIndex, qlen);
 
                 // brief on-screen notice so the skip doesn't look like a glitch - sent just
-                // before the jump. This is Emby's own transient toast (GeneralCommand
-                // "DisplayMessage" with a timeout -> the same toast component as "Playing next");
-                // there is no server API for the in-video "Skip Intro"-style button.
-                // Text: the admin's custom string if set, otherwise a built-in one in the
-                // server's UI language (no per-client language exists outside a request).
+                // before the jump. The only server->client primitive is GeneralCommand
+                // "DisplayMessage"; clients render it as a titled notice (header + text) that
+                // dismisses itself after the timeout - no server API for the in-video
+                // "Skip Intro"-style button. Header is a fixed localised label; the body is
+                // the admin's custom string if set, otherwise a built-in localised one.
+                // Language: the server's UI language (no per-client language outside a request).
                 if (opts.AutoSkipNotice)
                 {
+                    var header = Localization.TFor(Localization.ServerLocale, "End credits");
                     var custom = (opts.AutoSkipNoticeText ?? string.Empty).Trim();
                     var text = custom.Length > 0
                         ? custom
@@ -464,7 +466,7 @@ namespace Emby.CreditsMarker
                     {
                         _sessionManager.SendMessageCommand(
                             null, session.Id,
-                            new MessageCommand { Header = string.Empty, Text = text, TimeoutMs = 2500 },
+                            new MessageCommand { Header = header, Text = text, TimeoutMs = 4000 },
                             CancellationToken.None);
                     }
                     catch (Exception ex)
