@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.15.0.0 — 2026-09-02
+- **The auto-skip on-screen notice is now localised** and shown in the server's UI
+  language (there is no per-client language available outside an HTTP request, so
+  it follows `ServerConfiguration.UICulture`). Ships Spanish ("Saltando
+  créditos"); other languages fall back to English ("Skipping credits").
+- **"Notice text" now defaults to empty** = use the built-in localised message.
+  Set it to override with your own wording (used verbatim, any language).
+- The notice is Emby's own transient toast (`GeneralCommand` "DisplayMessage"
+  with a 2.5 s timeout - the same component as "Playing next"). There is no
+  server API for the in-video "Skip Intro"-style button; that's a client-only
+  feature tied to intro markers.
+
 ## 1.14.0.0 — 2026-09-02
 - **The settings page now actually shows in the server's language.** Emby 4.9
   renders a server-side plugin's `[DisplayNameL]` / `[DescriptionL]` verbatim -

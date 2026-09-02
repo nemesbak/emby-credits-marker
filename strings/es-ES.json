@@ -24,7 +24,8 @@
   "Show a short message in the player just before the auto-skip, so it doesn't look like a glitch. Rendered the same way as Emby's own notices.": "Muestra un mensaje corto en el reproductor justo antes del salto automático, para que no parezca un fallo. Se ve igual que los avisos propios de Emby.",
 
   "Notice text": "Texto del aviso",
-  "The message shown when auto-skipping.": "El mensaje que aparece al saltar automáticamente.",
+  "The message shown when auto-skipping. Leave empty to use a built-in message in the server's language.": "El mensaje que aparece al saltar automáticamente. Déjalo vacío para usar un mensaje integrado en el idioma del servidor.",
+  "Skipping credits": "Saltando créditos",
 
   "Break client playback loops": "Cortar bucles de reproducción del cliente",
   "If a player gets stuck in a loop (starting one episode after another at full speed - a known Emby for iOS bug with a corrupted play queue), the server sends it a \"Stop\" to break the loop. Doesn't touch normal playback. Recommended.": "Si un reproductor se atasca en bucle (empieza un episodio tras otro a toda velocidad, típico de Emby para iOS con una cola de reproducción corrupta), el servidor le manda un «Stop» para cortarlo. No afecta a la reproducción normal. Recomendado.",

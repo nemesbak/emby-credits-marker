@@ -114,6 +114,22 @@ public class LocalizationTests
     [Fact]
     public void Format_helper_fills_placeholders_from_translated_string()
         => WithCulture("es", () => Assert.Equal("hace 5 min", Localization.TF("{0} min ago", 5)));
+
+    [Fact]
+    public void TFor_translates_for_an_explicit_locale_regardless_of_thread_culture()
+        => WithCulture("en-US", () => Assert.Equal("Saltando créditos", Localization.TFor("es", "Skipping credits")));
+
+    [Fact]
+    public void TFor_regional_locale_falls_back_to_neutral()
+        => WithCulture("en-US", () => Assert.Equal("Saltando créditos", Localization.TFor("es-ES", "Skipping credits")));
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("de")]
+    [InlineData("not-a-locale")]
+    public void TFor_unknown_or_missing_locale_stays_english(string locale)
+        => Assert.Equal("Skipping credits", Localization.TFor(locale, "Skipping credits"));
 }
 
 public class LocalizedDescriptorTests

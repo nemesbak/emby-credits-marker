@@ -29,6 +29,13 @@ namespace Emby.CreditsMarker
         private static readonly Dictionary<string, Dictionary<string, string>> _tables =
             new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// The server's configured UI language (<c>ServerConfiguration.UICulture</c>), set once
+        /// by <see cref="Plugin"/>. Used for text that isn't produced in a request context - e.g.
+        /// the auto-skip notice pushed to a player - where there is no per-client culture to read.
+        /// </summary>
+        public static string ServerLocale { get; set; }
+
         private static readonly JsonSerializerOptions JsonOpts = new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
@@ -104,6 +111,33 @@ namespace Emby.CreditsMarker
             var fmt = T(englishFormat);
             try { return string.Format(CultureInfo.CurrentUICulture, fmt, args); }
             catch { return string.Format(CultureInfo.InvariantCulture, fmt, args); }
+        }
+
+        /// <summary>
+        /// Translates an English string for a specific language tag (e.g. <c>"es"</c> or
+        /// <c>"es-ES"</c>), independent of the current thread culture. A null/empty locale,
+        /// or one with no translation, returns <paramref name="english"/> unchanged.
+        /// </summary>
+        public static string TFor(string locale, string english)
+        {
+            if (string.IsNullOrEmpty(english) || string.IsNullOrEmpty(locale) || _tables.Count == 0)
+                return english;
+            try
+            {
+                var c = CultureInfo.GetCultureInfo(locale.Replace('_', '-'));
+                for (; c != null && !string.IsNullOrEmpty(c.Name); c = c.Parent)
+                {
+                    if (_tables.TryGetValue(c.Name, out var table) &&
+                        table.TryGetValue(english, out var translated) &&
+                        !string.IsNullOrEmpty(translated))
+                        return translated;
+                }
+            }
+            catch
+            {
+                // unknown locale name -> English
+            }
+            return english;
         }
     }
 }

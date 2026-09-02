@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using MediaBrowser.Common;
 using MediaBrowser.Common.Plugins;
+using MediaBrowser.Controller.Configuration;
 using MediaBrowser.Controller.Plugins;
 using MediaBrowser.Model.Drawing;
 using MediaBrowser.Model.Plugins;
@@ -37,6 +38,18 @@ namespace Emby.CreditsMarker
             catch
             {
                 // non-fatal: without it the form just stays English
+            }
+
+            // The auto-skip notice is pushed to a player outside any request, so there's
+            // no per-client language to read - fall back to the server's UI language.
+            try
+            {
+                Localization.ServerLocale = applicationHost
+                    .Resolve<IServerConfigurationManager>()?.Configuration?.UICulture;
+            }
+            catch
+            {
+                // non-fatal: the notice just stays English
             }
         }
 

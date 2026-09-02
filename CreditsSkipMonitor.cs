@@ -449,16 +449,22 @@ namespace Emby.CreditsMarker
                     100.0 * credits / runtime, session.PlaylistIndex, qlen);
 
                 // brief on-screen notice so the skip doesn't look like a glitch - sent just
-                // before the jump; Emby renders it the same way as its own system toasts.
+                // before the jump. This is Emby's own transient toast (GeneralCommand
+                // "DisplayMessage" with a timeout -> the same toast component as "Playing next");
+                // there is no server API for the in-video "Skip Intro"-style button.
+                // Text: the admin's custom string if set, otherwise a built-in one in the
+                // server's UI language (no per-client language exists outside a request).
                 if (opts.AutoSkipNotice)
                 {
-                    var text = string.IsNullOrWhiteSpace(opts.AutoSkipNoticeText)
-                        ? "Saltando créditos…" : opts.AutoSkipNoticeText.Trim();
+                    var custom = (opts.AutoSkipNoticeText ?? string.Empty).Trim();
+                    var text = custom.Length > 0
+                        ? custom
+                        : Localization.TFor(Localization.ServerLocale, "Skipping credits");
                     try
                     {
                         _sessionManager.SendMessageCommand(
                             null, session.Id,
-                            new MessageCommand { Header = string.Empty, Text = text, TimeoutMs = 3000 },
+                            new MessageCommand { Header = string.Empty, Text = text, TimeoutMs = 2500 },
                             CancellationToken.None);
                     }
                     catch (Exception ex)

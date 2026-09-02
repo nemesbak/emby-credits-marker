@@ -68,8 +68,8 @@ namespace Emby.CreditsMarker
         public bool AutoSkipNotice { get; set; } = true;
 
         [DisplayNameL("Notice text")]
-        [DescriptionL("The message shown when auto-skipping.")]
-        public string AutoSkipNoticeText { get; set; } = "Skipping credits…";
+        [DescriptionL("The message shown when auto-skipping. Leave empty to use a built-in message in the server's language.")]
+        public string AutoSkipNoticeText { get; set; } = "";
 
         [DisplayNameL("Break client playback loops")]
         [DescriptionL("If a player gets stuck in a loop (starting one episode after another at full speed - a known Emby for iOS bug with a corrupted play queue), the server sends it a \"Stop\" to break the loop. Doesn't touch normal playback. Recommended.")]
